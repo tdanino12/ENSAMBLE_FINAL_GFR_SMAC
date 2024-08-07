@@ -317,7 +317,108 @@ class Best_experience_Buffer(EpisodeBatch):
 
 
 
+class ReplayBuffer_Prior(EpisodeBatch):
+    def __init__(self, scheme, groups, buffer_size, max_seq_length, burn_in_period, preprocess=None, device="cpu", alpha=0.1):
+        super(ReplayBuffer_Prior, self).__init__(scheme, groups, buffer_size,
+                                                 max_seq_length, preprocess=preprocess, device=device)
+        self.buffer_size = buffer_size  # same as self.batch_size but more explicit
+        self.buffer_index = 0
+        self.episodes_in_buffer = 0
+        self.is_from_start = True
+        self.burn_in_period = burn_in_period
+        self.proportional = Experience(buffer_size, alpha=alpha)
 
+    def insert_episode_batch(self, ep_batch):
+
+        for _ in range(ep_batch.batch_size):
+            self.proportional.add(1.0)
+
+        if self.buffer_index + ep_batch.batch_size <= self.buffer_size:
+            self.update(ep_batch.data.transition_data,
+                        slice(self.buffer_index, self.buffer_index +
+                              ep_batch.batch_size),
+                        slice(0, ep_batch.max_seq_length),
+                        mark_filled=False)
+            self.update(ep_batch.data.episode_data,
+                        slice(self.buffer_index, self.buffer_index + ep_batch.batch_size))
+            self.buffer_index = (self.buffer_index + ep_batch.batch_size)
+            self.episodes_in_buffer = max(
+                self.episodes_in_buffer, self.buffer_index)
+            self.buffer_index = self.buffer_index % self.buffer_size
+            assert self.buffer_index < self.buffer_size
+        else:
+            buffer_left = self.buffer_size - self.buffer_index
+            self.insert_episode_batch(ep_batch[0:buffer_left, :])
+            self.insert_episode_batch(ep_batch[buffer_left:, :])
+
+    def can_sample(self, batch_size):
+        return self.episodes_in_buffer >= self.burn_in_period and self.episodes_in_buffer >= batch_size
+
+    def on_policy_can_sample(self, batch_size):
+        return self.episodes_in_buffer >= batch_size
+
+    def sample(self, batch_size):
+        assert self.on_policy_can_sample(batch_size)
+        idx = self.proportional.select(batch_size)
+
+        return idx, self[idx]
+
+    def update_priority(self, indices, priorities):
+        self.proportional.priority_update(indices, priorities)
+
+    def __repr__(self):
+        return "ReplayBuffer. {}/{} episodes. Keys:{} Groups:{}".format(self.episodes_in_buffer,
+                                                                        self.buffer_size,
+                                                                        self.scheme.keys(),
+                                                                        self.groups.keys())
+
+    def load_numpy_data(self, path_name):
+        for key, item in self.data.transition_data.items():
+            file_name = path_name + key + '.npy'
+            data = th.from_numpy(np.load(file_name))
+            if self.device == 'gpu':
+                data = data.gpu()
+            self.data.transition_data[key] = data
+        for key, item in self.data.episode_data.items():
+            file_name = path_name + key + '.npy'
+            data = th.from_numpy(np.load(file_name))
+            if self.device == 'gpu':
+                data = data.gpu()
+            self.data.episode_data[key] = data
+
+    def load(self, path_name):
+        print('start loading buffer!')
+        self.load_numpy_data(path_name)
+        file_name = path_name + 'meta.json'
+        with open(file_name) as fd:
+            meta = json.load(fd)
+        self.buffer_index = meta['buffer_index']
+        self.episodes_in_buffer = meta['episodes_in_buffer']
+        self.buffer_size = meta['buffer_size']
+        print('episodes_in_buffer: ', self.episodes_in_buffer)
+        print('finish loading buffer!')
+
+    def save_numpy_data(self, path_name):
+        for key, item in self.data.transition_data.items():
+            file_name = path_name + key + '.npy'
+            data = item.cpu().clone().detach().numpy()
+            np.save(file_name, data)
+        for key, item in self.data.episode_data.items():
+            file_name = path_name + key + '.npy'
+            data = item.cpu().clone().detach().numpy()
+            np.save(file_name, data)
+
+    def save(self, path_name):
+        print('start saving buffer!')
+        print('episodes_in_buffer: ', self.episodes_in_buffer)
+        self.save_numpy_data(path_name)
+        file_name = path_name + 'meta.json'
+        meta = {'buffer_index': self.buffer_index,
+                'episodes_in_buffer': self.episodes_in_buffer,
+                'buffer_size': self.buffer_size}
+        with open(file_name, 'w') as fp:
+            json.dump(meta, fp)
+        print('finish saving buffer!')
 
 
 
