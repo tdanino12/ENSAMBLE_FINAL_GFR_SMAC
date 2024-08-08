@@ -25,7 +25,7 @@ env_args:
 target_update_interval: 600
 step: 5 #steps for tree back up diagram  (adjustable based on # of agents)
 
-
+burn_in_period: 32
 lr: 0.0005
 critic_lr: 0.0001
 td_lambda: 0.8
