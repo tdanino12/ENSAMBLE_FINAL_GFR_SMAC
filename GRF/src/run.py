@@ -57,6 +57,9 @@ def run(_run, _config, _log):
         tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
         logger.setup_tb(tb_exp_direc)
         '''
+        tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
+        logger.setup_tb(tb_exp_direc)
+        
         env_name = args.env_args['env_name']
         tensorboard_dir = f'{tb_logs_direc}/{args.name[:-6]}/{env_name}/seed_{args.seed}'
         logger.setup_tb(tensorboard_dir)
@@ -133,6 +136,7 @@ def run_sequential(args, logger):
     '''
     new code (creating buffers):
     '''
+    '''
     if 'prior' in args.name:
         off_buffer = ReplayBuffer(scheme, groups, args.off_buffer_size, env_info["episode_limit"] + 1,
                                   args.burn_in_period,
@@ -166,17 +170,16 @@ def run_sequential(args, logger):
                                   args.burn_in_period,
                                   preprocess=preprocess,
                                   device="cpu" if args.buffer_cpu_only else args.device)
-
+    '''
 
     
-    '''
     buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
                           preprocess=preprocess,
                           device="cpu" if args.buffer_cpu_only else args.device)
     off_buffer = ReplayBuffer(scheme, groups, args.off_buffer_size, env_info["episode_limit"] + 1,
                           preprocess=preprocess,
                           device="cpu" if args.buffer_cpu_only else args.device)
-    '''
+    
 
     
     # Setup multiagent controller here
