@@ -212,6 +212,7 @@ class ReplayBuffer(EpisodeBatch):
         super(ReplayBuffer, self).__init__(scheme, groups, buffer_size, max_seq_length, preprocess=preprocess, device=device)
         self.buffer_size = buffer_size  # same as self.batch_size but more explicit
         self.buffer_index = 0
+        self.burn_in_period = burn_in_period
         self.episodes_in_buffer = 0
 
     def insert_episode_batch(self, ep_batch):
@@ -232,7 +233,7 @@ class ReplayBuffer(EpisodeBatch):
             self.insert_episode_batch(ep_batch[buffer_left:, :])
 
     def can_sample(self, batch_size):
-        return self.episodes_in_buffer >= batch_size
+        return self.episodes_in_buffer >= self.burn_in_period and  self.episodes_in_buffer >= batch_size
 
     def uni_sample(self, batch_size):
         assert self.can_sample(batch_size)
