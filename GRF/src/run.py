@@ -132,17 +132,29 @@ def run_sequential(args, logger):
 
 
     if 'prior' in args.name:
-        buffer_prior = ReplayBuffer_Prior(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
+
+        off_buffer = ReplayBuffer(scheme, groups, args.off_buffer_size, env_info["episode_limit"] + 1,
+                                  args.burn_in_period,
+                                  preprocess=preprocess,
+                                  device="cpu" if args.buffer_cpu_only else args.device)
+        
+        off_buffer_prior = ReplayBuffer_Prior(scheme, groups, args.off_buffer_size, env_info["episode_limit"] + 1,
                                           args.burn_in_period,
                                           preprocess=preprocess,
                                           device="cpu" if args.buffer_cpu_only else args.device,
                                           alpha=args.alpha)
-
+        
         buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
                               args.burn_in_period,
                               preprocess=preprocess,
                               device="cpu" if args.buffer_cpu_only else args.device)
 
+        buffer_prior = ReplayBuffer_Prior(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
+                                          args.burn_in_period,
+                                          preprocess=preprocess,
+                                          device="cpu" if args.buffer_cpu_only else args.device,
+                                          alpha=args.alpha)
+    
     else:        
         buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
                               args.burn_in_period,
