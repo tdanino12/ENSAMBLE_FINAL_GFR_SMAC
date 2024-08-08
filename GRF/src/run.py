@@ -53,9 +53,14 @@ def run(_run, _config, _log):
     
     if args.use_tensorboard:
         tb_logs_direc = os.path.join(dirname(dirname(abspath(__file__))), "results", "tb_logs")
+        '''
         tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
         logger.setup_tb(tb_exp_direc)
-
+        '''
+        env_name = args.env_args['env_name']
+        tensorboard_dir = f'{tb_logs_direc}/{args.name[:-6]}/{env_name}/seed_{args.seed}'
+        logger.setup_tb(tensorboard_dir)
+        
     # sacred is on by default
     logger.setup_sacred(_run)
 
