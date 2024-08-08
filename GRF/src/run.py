@@ -130,6 +130,27 @@ def run_sequential(args, logger):
         "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
     }
 
+
+    if 'prior' in args.name:
+        buffer_prior = ReplayBuffer_Prior(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
+                                          args.burn_in_period,
+                                          preprocess=preprocess,
+                                          device="cpu" if args.buffer_cpu_only else args.device,
+                                          alpha=args.alpha)
+
+        buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
+                              args.burn_in_period,
+                              preprocess=preprocess,
+                              device="cpu" if args.buffer_cpu_only else args.device)
+
+    else:
+        buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
+                              args.burn_in_period,
+                              preprocess=preprocess,
+                              device="cpu" if args.buffer_cpu_only else args.device)
+
+
+    
     buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
                           preprocess=preprocess,
                           device="cpu" if args.buffer_cpu_only else args.device)
@@ -137,6 +158,8 @@ def run_sequential(args, logger):
                           preprocess=preprocess,
                           device="cpu" if args.buffer_cpu_only else args.device)
 
+
+    
     # Setup multiagent controller here
     mac = mac_REGISTRY[args.mac](buffer.scheme, groups, args)
 
