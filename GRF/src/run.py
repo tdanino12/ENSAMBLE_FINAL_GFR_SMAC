@@ -130,9 +130,10 @@ def run_sequential(args, logger):
         "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
     }
 
-
+    '''
+    new code (creating buffers):
+    '''
     if 'prior' in args.name:
-
         off_buffer = ReplayBuffer(scheme, groups, args.off_buffer_size, env_info["episode_limit"] + 1,
                                   args.burn_in_period,
                                   preprocess=preprocess,
@@ -251,11 +252,21 @@ def run_sequential(args, logger):
 
         # Run for a whole episode at a time
         episode_batch = runner.run(test_mode=False,learner=learner)
-        buffer.insert_episode_batch(episode_batch)
-        off_buffer.insert_episode_batch(episode_batch)
 
+        '''
+        new code (creating buffers):
+        '''
+        if 'prior' in args.name:
+            buffer.insert_episode_batch(episode_batch)
+            buffer_prior.insert_episode_batch(episode_batch)
 
+            off_buffer_prior.insert_episode_batch(episode_batch)
+            off_buffer.insert_episode_batch(episode_batch)
+        else:
+            buffer.insert_episode_batch(episode_batch)
+            off_buffer.insert_episode_batch(episode_batch)
 
+        
         if buffer.can_sample(args.batch_size) and off_buffer.can_sample(args.off_batch_size):
             #train critic normall
             uni_episode_sample = buffer.uni_sample(args.batch_size)
