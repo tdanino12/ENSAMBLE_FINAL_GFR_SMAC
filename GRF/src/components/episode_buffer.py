@@ -212,7 +212,7 @@ class ReplayBuffer(EpisodeBatch):
         super(ReplayBuffer, self).__init__(scheme, groups, buffer_size, max_seq_length, preprocess=preprocess, device=device)
         self.buffer_size = buffer_size  # same as self.batch_size but more explicit
         self.buffer_index = 0
-        self.burn_in_period = burn_in_period
+        #self.burn_in_period = burn_in_period
         self.episodes_in_buffer = 0
 
     def insert_episode_batch(self, ep_batch):
