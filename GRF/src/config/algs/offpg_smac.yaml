@@ -6,7 +6,7 @@ epsilon_finish: .05
 epsilon_anneal_time: 500000
 mask_before_softmax: False
 
-runner: "parallel"
+runner: "episode"
 
 wandb_project: "diversity11so_many_baneling"
 wandb_group: "ensamble_updated!!"
