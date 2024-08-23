@@ -192,6 +192,9 @@ def orthogonal_init(layer, scale = np.sqrt(2), constant = 0 ):
         weight_init= lambda x:_orthogonal_init(x, gain=scale),
         bias_init=lambda x: _constant_bias_init(x, 0))
 
+def null_activation(x):
+    return x
+
 '''
 Soft modularization base functions
 '''
