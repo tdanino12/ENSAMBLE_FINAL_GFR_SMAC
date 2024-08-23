@@ -247,7 +247,7 @@ Soft modularization network
 '''
 class ModularGatedCascadeCondNet(nn.Module):
     def __init__(self, output_shape,
-            base_type, em_input_shape, input_shape,
+             em_input_shape, input_shape,
             em_hidden_shapes,
             hidden_shapes,
 
