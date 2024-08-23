@@ -29,6 +29,9 @@ class BasicMAC:
         avail_actions = ep_batch["avail_actions"][:, t]
         
         agent_outs,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
+        x = [i for i in range(self.args.n_agents)]
+        # soft mod agent:
+        self.soft_agent(agent_inputs,th.tensor(x))
         
         if(learner!=None and execute==True):
             #t_alpha = min(5.5,4+t/600000)
