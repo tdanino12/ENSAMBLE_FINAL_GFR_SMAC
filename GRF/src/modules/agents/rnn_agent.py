@@ -146,7 +146,7 @@ class RNNAgent(nn.Module):
         return (q+q_2+q_3+q_4+q_5+q_6+q_7)/th.tensor(7) ,q,q_2,q_3,q_4,q_5,q_6,q_7, h,h_2,h_3,h_4,h_5,h_6,h_7
 
 '''
-Soft modularization ןinit function
+Soft modularization init function
 '''
 
 def _fanin_init(tensor, alpha = 0):
