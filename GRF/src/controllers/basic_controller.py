@@ -176,8 +176,9 @@ class BasicMAC:
         self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
         self.soft_agent = agent_REGISTRY["soft"](
                                                  input_shape=input_shape,
-                                                 em_input_shape=9,
-                                                 output_shape=self.args.n_actions)
+                                                 em_input_shape=1,
+                                                 output_shape=self.args.n_actions,
+                                                 **net)
     
         
     def _build_inputs(self, batch, t):
