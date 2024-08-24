@@ -162,6 +162,17 @@ class BasicMAC:
         self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
+        net={
+        "hidden_shapes": [400, 400],
+        "em_hidden_shapes": [400],
+        "num_layers": 2,
+        "num_modules": 2,
+        "module_hidden": 256,
+        "num_gating_layers": 2,
+        "gating_hidden": 256,
+        "add_bn": False,
+        "pre_softmax": False
+        }
         self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
         self.soft_agent = agent_REGISTRY["soft"](
                                                  input_shape=input_shape,
