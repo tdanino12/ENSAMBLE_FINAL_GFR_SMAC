@@ -73,7 +73,7 @@ class DepthRouteModule(nn.Module):
             resrouting = False,
             explore_sample = False,
             temperature_sample = False,
-            module_hidden_init_func = init.basic_init,
+            module_hidden_init_func = basic_init,
             activation_func = F.relu,
             ):
         super().__init__()
@@ -240,8 +240,8 @@ class DepthRouteNet(nn.Module):
             cond_ob = True,
             explore_sample = False,
             temperature_sample = False,
-            module_hidden_init_func = init.basic_init,
-            last_init_func = init.uniform_init,
+            module_hidden_init_func = basic_init,
+            last_init_func = uniform_init,
             activation_func = F.relu,
             **kwargs):
 
