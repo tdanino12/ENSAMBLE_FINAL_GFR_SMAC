@@ -249,8 +249,8 @@ class DepthRouteModule(nn.Module):
                     module_fc_out = module_fc_out + module_fc_input
                     module_fc_out_detach = module_fc_out_detach + module_fc_input
 
-            out = torch.cat([out, module_fc_out.unsqueeze(-2)], dim=-2)
-            out_detach = torch.cat([out_detach, module_fc_out_detach.unsqueeze(-2)], dim=-2)
+            out = torch.cat([out, module_fc_out], dim=-2)
+            out_detach = torch.cat([out_detach, module_fc_out_detach], dim=-2)
         
         if self.resrouting and self.training:
             greater_avg_last = greater_avg_list[-1].unsqueeze(-1)
