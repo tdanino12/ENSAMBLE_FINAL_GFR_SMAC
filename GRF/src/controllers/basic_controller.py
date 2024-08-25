@@ -28,11 +28,17 @@ class BasicMAC:
         agent_inputs = self._build_inputs(ep_batch, t)
         avail_actions = ep_batch["avail_actions"][:, t]
         
-        agent_outs,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
-        agent_outs = th.stack( [self.soft_agent(agent_inputs[i,:],th.tensor(float(i)).view(1,1)) for i in range(self.args.n_agents)])
-        print(agent_outs.shape)
-        agent_outs = agent_outs.view(agent_outs.shape[0],agent_outs.shape[2])
-        self.pf(agent_inputs[i,:],th.tensor(float(i)).view(1,1))
+        agent_outs1,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
+        
+        if(execute):
+            agent_outs = self.pf(agent_inputs,idx=th.tensor([float(i) for i in range(self.args.n_agents)]).view(self.args.n_agents,1))
+        else:
+            b_size = ep_batch.batch_size
+            index = b_size/self.args.n_agents
+            total_size = b_size*self.args.n_agents
+            agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))
+
+        
         if(learner!=None and execute==True):
             #t_alpha = min(5.5,4+t/600000)
             inputs = learner.critic._build_inputs(ep_batch,ep_batch.batch_size,ep_batch.max_seq_length)
