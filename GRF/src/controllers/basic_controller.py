@@ -196,7 +196,6 @@ class BasicMAC:
             "explore_sample": true,
             "temperature_sample": true
         }
-        "policy_net": {"DepthRoutePolicy"}
         
         self.pf = agent_REGISTRY["soft_new"](
                                        input_shape = input_shape, 
