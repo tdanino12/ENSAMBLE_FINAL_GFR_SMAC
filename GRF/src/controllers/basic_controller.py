@@ -180,7 +180,7 @@ class BasicMAC:
                                                  output_shape=self.args.n_actions,
                                                  **net)
 
-        "net":{
+        net:{
             "base_type": "mlp",
             "hidden_shapes": [400, 400],
             "em_hidden_shapes": [400],
