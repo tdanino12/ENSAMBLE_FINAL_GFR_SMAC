@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchrl.networks.utils.init as init
 import copy
 
 def _fanin_init(tensor, alpha = 0):
