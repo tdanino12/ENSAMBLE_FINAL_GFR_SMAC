@@ -199,7 +199,7 @@ class BasicMAC:
         
         self.pf = agent_REGISTRY["soft_new"](
                                        input_shape = input_shape, 
-                                       output_shape = 2 * env_info['action_shape'][0],
+                                       output_shape = self.args.n_actions,
                                        **net)
         
     def _build_inputs(self, batch, t):
