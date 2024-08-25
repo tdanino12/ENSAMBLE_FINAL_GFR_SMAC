@@ -188,13 +188,13 @@ class BasicMAC:
             "module_num": 16,
             "gate_hiddens": [256, 256],
             "top_k": 2,
-            "rescale_prob": true,
-            "route_as_sample": true,
-            "use_resnet": true,
-            "resrouting": true,
+            "rescale_prob": True,
+            "route_as_sample": True,
+            "use_resnet": True,
+            "resrouting": True,
             "task_num": 10,
-            "explore_sample": true,
-            "temperature_sample": true
+            "explore_sample": True,
+            "temperature_sample": True
         }
         
         self.pf = agent_REGISTRY["soft_new"](
