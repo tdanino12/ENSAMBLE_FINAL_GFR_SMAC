@@ -179,7 +179,29 @@ class BasicMAC:
                                                  em_input_shape=1,
                                                  output_shape=self.args.n_actions,
                                                  **net)
-    
+
+        "net":{
+            "base_type": "mlp",
+            "hidden_shapes": [400, 400],
+            "em_hidden_shapes": [400],
+            "module_hidden": 128,
+            "module_num": 16,
+            "gate_hiddens": [256, 256],
+            "top_k": 2,
+            "rescale_prob": true,
+            "route_as_sample": true,
+            "use_resnet": true,
+            "resrouting": true,
+            "task_num": 10,
+            "explore_sample": true,
+            "temperature_sample": true
+        }
+        "policy_net": {"DepthRoutePolicy"}
+        
+        pf = agent_REGISTRY["soft_new"](
+                                       input_shape = input_shape, 
+                                       output_shape = 2 * env_info['action_shape'][0],
+                                       **net)
         
     def _build_inputs(self, batch, t):
         # Assumes homogenous agents with flat observations.
