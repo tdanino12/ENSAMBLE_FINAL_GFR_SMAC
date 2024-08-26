@@ -164,7 +164,7 @@ class BasicMAC:
 
     def load_state(self, other_mac):
         if(self.args.soft_modul):
-            self.agent.load_state_dict(other_mac.pf.state_dict())
+            self.pf.load_state_dict(other_mac.pf.state_dict())
         else:
             self.agent.load_state_dict(other_mac.agent.state_dict())
 
