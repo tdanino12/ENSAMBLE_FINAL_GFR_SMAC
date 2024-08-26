@@ -2,6 +2,7 @@ from modules.agents import REGISTRY as agent_REGISTRY
 from components.action_selectors import REGISTRY as action_REGISTRY
 import torch as th
 import numpy as np
+import math
 
 # This multi-agent controller shares parameters between agents
 class BasicMAC:
@@ -28,7 +29,17 @@ class BasicMAC:
         agent_inputs = self._build_inputs(ep_batch, t)
         avail_actions = ep_batch["avail_actions"][:, t]
         
-        agent_outs,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
+        if(self.args.soft_modul):
+            if(execute):
+                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(i) for i in range(self.args.n_agents)]).view(self.args.n_agents,1))
+            else:
+                b_size = ep_batch.batch_size
+                index = b_size/self.args.n_agents
+                total_size = b_size*self.args.n_agents
+                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))           
+        else:    
+            agent_outs,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
+        
         
         if(learner!=None and execute==True):
             #t_alpha = min(5.5,4+t/600000)
@@ -144,22 +155,75 @@ class BasicMAC:
         '''
         a=1
     def parameters(self):
-        return self.agent.parameters()
+        if(self.args.soft_modul):
+            return self.pf.parameters()
+        else:     
+            return self.agent.parameters()
 
     def load_state(self, other_mac):
-        self.agent.load_state_dict(other_mac.agent.state_dict())
+        if(self.args.soft_modul):
+            self.pf.load_state_dict(other_mac.pf.state_dict())
+        else:
+            self.agent.load_state_dict(other_mac.agent.state_dict())
 
     def cuda(self):
         self.agent.cuda()
 
     def save_models(self, path):
-        th.save(self.agent.state_dict(), "{}/agent.th".format(path))
+        if(self.args.soft_modul):
+            th.save(self.pf.state_dict(), "{}/agent.th".format(path))
+        else:
+            th.save(self.agent.state_dict(), "{}/agent.th".format(path))
 
     def load_models(self, path):
-        self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
+        if(self.args.soft_modul):
+            self.pf.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
+        else:    
+            self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
-        self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
+           if(self.args.soft_modul):
+            '''
+            net={
+            "hidden_shapes": [400, 400],
+            "em_hidden_shapes": [400],
+            "num_layers": 2,
+            "num_modules": 2,
+            "module_hidden": 256,
+            "num_gating_layers": 2,
+            "gating_hidden": 256,
+            "add_bn": False,
+            "pre_softmax": False
+            }
+        
+            self.soft_agent = agent_REGISTRY["soft"](
+                                                     input_shape=input_shape,
+                                                     em_input_shape=1,
+                                                     output_shape=self.args.n_actions,
+                                                     **net)
+            '''
+            net={
+                "hidden_shapes": [400, 400],
+                "em_hidden_shapes": [400],
+                "module_hidden": 128,
+                "module_num": 16,
+                "gate_hiddens": [256, 256],
+                "top_k": 2,
+                "rescale_prob": True,
+                "route_as_sample": True,
+                "use_resnet": True,
+                "resrouting": True,
+                "task_num": 10,
+                "explore_sample": True,
+                "temperature_sample": True
+            }
+        
+            self.pf = agent_REGISTRY["soft_new"](
+                                                input_shape = input_shape, 
+                                                output_shape = self.args.n_actions,
+                                                **net)
+        else:
+            self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
 
     def _build_inputs(self, batch, t):
         # Assumes homogenous agents with flat observations.
