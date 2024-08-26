@@ -162,16 +162,25 @@ class BasicMAC:
             return self.agent.parameters()
 
     def load_state(self, other_mac):
-        self.agent.load_state_dict(other_mac.agent.state_dict())
+        if(self.args.soft_modul):
+            self.agent.load_state_dict(other_mac.pf.state_dict())
+        else:
+            self.agent.load_state_dict(other_mac.agent.state_dict())
 
     def cuda(self):
         self.agent.cuda()
 
     def save_models(self, path):
-        th.save(self.agent.state_dict(), "{}/agent.th".format(path))
+        if(self.args.soft_modul):
+            th.save(self.pf.state_dict(), "{}/agent.th".format(path))
+        else:
+            th.save(self.agent.state_dict(), "{}/agent.th".format(path))
 
     def load_models(self, path):
-        self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
+        if(self.args.soft_modul):
+            self.pf.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
+        else:    
+            self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
 
