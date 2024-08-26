@@ -144,7 +144,8 @@ class BasicMAC:
         self.h7.unsqueeze(0).expand(batch_size, self.n_agents, -1)
         a = 1
         '''
-        self.hidden_states = self.agent.init_hidden().unsqueeze(0).expand(batch_size, self.n_agents, -1)  # bav
+        if(not self.args.soft_modul):
+            self.hidden_states = self.agent.init_hidden().unsqueeze(0).expand(batch_size, self.n_agents, -1)  # bav
         '''
         self.h2 = self.agent.init_hidden2().unsqueeze(0).expand(batch_size, self.n_agents, -1)  # ba    
         self.h3 = self.agent.init_hidden3().unsqueeze(0).expand(batch_size, self.n_agents, -1)  # ba
