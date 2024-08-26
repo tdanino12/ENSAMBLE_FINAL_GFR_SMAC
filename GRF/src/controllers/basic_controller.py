@@ -155,7 +155,10 @@ class BasicMAC:
         '''
         a=1
     def parameters(self):
-        return self.agent.parameters()
+        if(self.args.soft_modul):
+            return self.pf.parameters()
+        else:     
+            return self.agent.parameters()
 
     def load_state(self, other_mac):
         self.agent.load_state_dict(other_mac.agent.state_dict())
