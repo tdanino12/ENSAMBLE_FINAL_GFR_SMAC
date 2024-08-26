@@ -176,6 +176,7 @@ class BasicMAC:
     def _build_agents(self, input_shape):
 
         if(self.args.soft_modul):
+            '''
             net={
             "hidden_shapes": [400, 400],
             "em_hidden_shapes": [400],
@@ -193,7 +194,7 @@ class BasicMAC:
                                                      em_input_shape=1,
                                                      output_shape=self.args.n_actions,
                                                      **net)
-
+            '''
             net={
                 "hidden_shapes": [400, 400],
                 "em_hidden_shapes": [400],
