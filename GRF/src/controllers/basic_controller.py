@@ -27,16 +27,18 @@ class BasicMAC:
     def forward(self, ep_batch, t, test_mode=False,training=False,learner=None,execute=False):
         agent_inputs = self._build_inputs(ep_batch, t)
         avail_actions = ep_batch["avail_actions"][:, t]
+
+        if(self.args.soft_modul):
+            if(execute):
+                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(i) for i in range(self.args.n_agents)]).view(self.args.n_agents,1))
+            else:
+                b_size = ep_batch.batch_size
+                index = b_size/self.args.n_agents
+                total_size = b_size*self.args.n_agents
+                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))           
+        else:    
+            agent_outs,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
         
-        agent_outs1,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
-        
-        if(execute):
-            agent_outs = self.pf(agent_inputs,idx=th.tensor([float(i) for i in range(self.args.n_agents)]).view(self.args.n_agents,1))
-        else:
-            b_size = ep_batch.batch_size
-            index = b_size/self.args.n_agents
-            total_size = b_size*self.args.n_agents
-            agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))
 
         
         if(learner!=None and execute==True):
@@ -168,45 +170,50 @@ class BasicMAC:
         self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
-        net={
-        "hidden_shapes": [400, 400],
-        "em_hidden_shapes": [400],
-        "num_layers": 2,
-        "num_modules": 2,
-        "module_hidden": 256,
-        "num_gating_layers": 2,
-        "gating_hidden": 256,
-        "add_bn": False,
-        "pre_softmax": False
-        }
-        self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
-        self.soft_agent = agent_REGISTRY["soft"](
-                                                 input_shape=input_shape,
-                                                 em_input_shape=1,
-                                                 output_shape=self.args.n_actions,
-                                                 **net)
 
-        net={
+        if(self.args.soft_modul):
+            net={
             "hidden_shapes": [400, 400],
             "em_hidden_shapes": [400],
-            "module_hidden": 128,
-            "module_num": 16,
-            "gate_hiddens": [256, 256],
-            "top_k": 2,
-            "rescale_prob": True,
-            "route_as_sample": True,
-            "use_resnet": True,
-            "resrouting": True,
-            "task_num": 10,
-            "explore_sample": True,
-            "temperature_sample": True
-        }
+            "num_layers": 2,
+            "num_modules": 2,
+            "module_hidden": 256,
+            "num_gating_layers": 2,
+            "gating_hidden": 256,
+            "add_bn": False,
+            "pre_softmax": False
+            }
         
-        self.pf = agent_REGISTRY["soft_new"](
-                                       input_shape = input_shape, 
-                                       output_shape = self.args.n_actions,
-                                       **net)
+            self.soft_agent = agent_REGISTRY["soft"](
+                                                     input_shape=input_shape,
+                                                     em_input_shape=1,
+                                                     output_shape=self.args.n_actions,
+                                                     **net)
+
+            net={
+                "hidden_shapes": [400, 400],
+                "em_hidden_shapes": [400],
+                "module_hidden": 128,
+                "module_num": 16,
+                "gate_hiddens": [256, 256],
+                "top_k": 2,
+                "rescale_prob": True,
+                "route_as_sample": True,
+                "use_resnet": True,
+                "resrouting": True,
+                "task_num": 10,
+                "explore_sample": True,
+                "temperature_sample": True
+            }
         
+            self.pf = agent_REGISTRY["soft_new"](
+                                                input_shape = input_shape, 
+                                                output_shape = self.args.n_actions,
+                                                **net)
+        else:
+            self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
+
+    
     def _build_inputs(self, batch, t):
         # Assumes homogenous agents with flat observations.
         # Other MACs might want to e.g. delegate building inputs to each agent
