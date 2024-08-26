@@ -292,8 +292,8 @@ class DepthRouteNet(nn.Module):
 
         self.task_num = task_num
 
-        self.base_input_shape = np.sum(input_shape[:-1])
-        self.em_input_shape = input_shape[-1]
+        self.base_input_shape = input_shape
+        self.em_input_shape = 1
 
         self.base = MLPBase( 
                         last_activation_func = null_activation,
@@ -337,9 +337,8 @@ class DepthRouteNet(nn.Module):
 
     def forward(self, x, idx=None, gate_sample=None, explore=True, return_gate=False):
 
-        assert x.shape[-1] == self.base_input_shape + self.em_input_shape
-        base_x = x[..., 0:self.base_input_shape]
-        em_x = x[..., self.base_input_shape:]
+        base_x = x
+        em_x = idx
         out = self.base(base_x)
         embedding = self.em_base(em_x)
 
