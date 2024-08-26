@@ -182,7 +182,7 @@ class BasicMAC:
             self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
-           if(self.args.soft_modul):
+        if(self.args.soft_modul):
             '''
             net={
             "hidden_shapes": [400, 400],
