@@ -31,16 +31,32 @@ class BasicMAC:
         
         if(self.args.soft_modul):
             if(execute):
-                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(i) for i in range(self.args.n_agents)]).view(self.args.n_agents,1))
+                # code for parallel runnner
+                x = [float(i) for i in range(self.args.n_agents)]
+                all_x = th.tensor([x] * ep_batch.batch_size)
+                all_x = all_x.view(agent_inputs.shape[0],1)
+                agent_outs = self.pf(agent_inputs,idx=all_x)
+
+                # code for episode runner
+                #agent_outs = self.pf(agent_inputs,idx=th.tensor([float(i) for i in range(self.args.n_agents)]).view(self.args.n_agents,1))
             else:
+                # code for parallel runnner
+                x = [float(i) for i in range(self.args.n_agents)]
+                all_x = th.tensor([x] * ep_batch.batch_size)
+                all_x = all_x.view(agent_inputs.shape[0],1)
+                agent_outs = self.pf(agent_inputs,idx=all_x)
+
+                # code for rpisode runner
+                '''
                 b_size = ep_batch.batch_size
                 index = b_size/self.args.n_agents
                 total_size = b_size*self.args.n_agents
-                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))           
-        else:    
+                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))
+                '''
+        else:
             agent_outs,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
-        
-        
+
+    
         if(learner!=None and execute==True):
             #t_alpha = min(5.5,4+t/600000)
             inputs = learner.critic._build_inputs(ep_batch,ep_batch.batch_size,ep_batch.max_seq_length)
