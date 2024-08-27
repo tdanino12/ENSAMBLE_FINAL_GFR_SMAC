@@ -14,7 +14,7 @@ wandb_group: "ensamble_updated!!"
 
 buffer_size: 32
 off_buffer_size: 5000 # size of the off-policy buffer
-batch_size_run: 4 #10
+batch_size_run: 1 #10
 batch_size: 16
 off_batch_size: 32
 
