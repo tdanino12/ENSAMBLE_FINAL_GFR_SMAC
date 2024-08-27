@@ -336,7 +336,7 @@ class DepthRouteNet(nn.Module):
         self.gumbel_temperature = nn.Parameter(torch.ones(task_num))
 
     def forward(self, x, idx=None, gate_sample=None, explore=True, return_gate=False):
-
+        explore=False
         base_x = x
         em_x = idx
         out = self.base(base_x)
