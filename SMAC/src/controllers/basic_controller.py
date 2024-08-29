@@ -46,12 +46,16 @@ class BasicMAC:
                 all_x = all_x.view(agent_inputs.shape[0],1)
                 agent_outs = self.pf(agent_inputs,idx=all_x)
 
-                # code for rpisode runner
+                # code for episode runner
                 '''
-                b_size = ep_batch.batch_size
-                index = b_size/self.args.n_agents
-                total_size = b_size*self.args.n_agents
-                agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))
+                #b_size = ep_batch.batch_size
+                #index = b_size/self.args.n_agents
+                #total_size = b_size*self.args.n_agents
+                #agent_outs = self.pf(agent_inputs,idx=th.tensor([float(math.floor(i/index)) for i in range(total_size)]).view(total_size,1))
+                x = [float(i) for i in range(self.args.n_agents)]
+                all_x = th.tensor([x] * ep_batch.batch_size)
+                all_x = all_x.view(agent_inputs.shape[0],1)
+                agent_outs = self.pf(agent_inputs,idx=all_x)
                 '''
         else:
             agent_outs,self.hidden_states= self.agent(agent_inputs, self.hidden_states)
