@@ -188,7 +188,10 @@ class BasicMAC:
             self.agent.load_state_dict(other_mac.agent.state_dict())
 
     def cuda(self):
-        self.agent.cuda()
+        if(self.args.soft_modul):
+            self.pf.cuda()
+        else:    
+            self.agent.cuda()
 
     def save_models(self, path):
         if(self.args.soft_modul):
