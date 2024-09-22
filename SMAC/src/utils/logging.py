@@ -38,7 +38,7 @@ class Logger:
                 self.sacred_info["{}_T".format(key)] = [t]
                 self.sacred_info[key] = [value]
 
-    def print_recent_stats(self,cude)):
+    def print_recent_stats(self,cude):
         log_str = "Recent Stats | t_env: {:>10} | Episode: {:>8}\n".format(*self.stats["episode"][-1])
         i = 0
         for (k, v) in sorted(self.stats.items()):
