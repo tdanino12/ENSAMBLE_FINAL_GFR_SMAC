@@ -2,7 +2,7 @@ from collections import defaultdict
 import logging
 import numpy as np
 import wandb
-
+import torch
 class Logger:
     def __init__(self, console_logger):
         self.console_logger = console_logger
@@ -38,7 +38,7 @@ class Logger:
                 self.sacred_info["{}_T".format(key)] = [t]
                 self.sacred_info[key] = [value]
 
-    def print_recent_stats(self):
+    def print_recent_stats(self,cude)):
         log_str = "Recent Stats | t_env: {:>10} | Episode: {:>8}\n".format(*self.stats["episode"][-1])
         i = 0
         for (k, v) in sorted(self.stats.items()):
@@ -46,7 +46,14 @@ class Logger:
                 continue
             i += 1
             window = 5 if k != "epsilon" else 1
-            item = "{:.4f}".format(np.mean([x[1] for x in self.stats[k][-window:]]))
+            if(cude):
+                original_list = [x[1] for x in self.stats[k][-window:]]
+                new_list = torch.tensor(original_list).cpu().tolist()
+                x = np.mean(new_list)
+                #item = "{:.4f}".format(np.mean([x[1] for x in self.stats[k][-window:]]))
+                item = "{:.4f}".format(x)
+            else:
+                item = "{:.4f}".format(np.mean([x[1] for x in self.stats[k][-window:]]))
             log_str += "{:<25}{:>8}".format(k + ":", item)
             log_str += "\n" if i % 4 == 0 else "\t"
             wandb.log({k: float(item)})
