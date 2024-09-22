@@ -33,7 +33,7 @@ class BasicMAC:
             if(execute):
                 # code for parallel runnner
                 x = [float(i) for i in range(self.args.n_agents)]
-                if args.use_cuda:
+                if self.args.use_cuda:
                     all_x = th.tensor([x] * ep_batch.batch_size).to("cuda")
                 else:
                     all_x = th.tensor([x] * ep_batch.batch_size)
@@ -45,7 +45,7 @@ class BasicMAC:
             else:
                 # code for parallel runnner
                 x = [float(i) for i in range(self.args.n_agents)]
-                if args.use_cuda:
+                if self.args.use_cuda:
                     all_x = th.tensor([x] * ep_batch.batch_size).to("cuda")
                 else:
                     all_x = th.tensor([x] * ep_batch.batch_size)
