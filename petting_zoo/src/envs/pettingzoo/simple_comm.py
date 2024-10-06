@@ -4,6 +4,9 @@ from gfootball.env import observation_preprocessing
 import gym
 import numpy as np
 
+from pettingzoo.mpe import simple_world_comm_v3
+
+
 class simple_comm_env(MultiAgentEnv):
 
     def __init__(
@@ -26,39 +29,10 @@ class simple_comm_env(MultiAgentEnv):
         number_of_right_players_agent_controls=0,
         seed=0
     ):
-        self.dense_reward = dense_reward
-        self.write_full_episode_dumps = write_full_episode_dumps
-        self.write_goal_dumps = write_goal_dumps
-        self.dump_freq = dump_freq
-        self.render = render
-        self.n_agents = n_agents
-        self.episode_limit = time_limit
-        self.time_step = time_step
-        self.obs_dim = obs_dim
-        self.env_name = env_name
-        self.stacked = stacked
-        self.representation = representation
-        self.rewards = rewards
-        self.logdir = logdir
-        self.write_video = write_video
-        self.number_of_right_players_agent_controls = number_of_right_players_agent_controls
-        self.seed = seed
+        
 
-        self.env = football_env.create_environment(
-            write_full_episode_dumps = self.write_full_episode_dumps,
-            write_goal_dumps = self.write_goal_dumps,
-            env_name=self.env_name,
-            stacked=self.stacked,
-            representation=self.representation,
-            rewards=self.rewards,
-            logdir=self.logdir,
-            render=self.render,
-            write_video=self.write_video,
-            dump_frequency=self.dump_freq,
-            number_of_left_players_agent_controls=self.n_agents,
-            number_of_right_players_agent_controls=self.number_of_right_players_agent_controls,
-            channel_dimensions=(observation_preprocessing.SMM_WIDTH, observation_preprocessing.SMM_HEIGHT))
-        self.env.seed(self.seed)
+        self.env = simple_world_comm_v3.parallel_env(num_good=2, num_adversaries=4, num_obstacles=1,
+                num_food=2, max_cycles=25, num_forests=2, continuous_actions=False)
 
         obs_space_low = self.env.observation_space.low[0][:self.obs_dim]
         obs_space_high = self.env.observation_space.high[0][:self.obs_dim]
