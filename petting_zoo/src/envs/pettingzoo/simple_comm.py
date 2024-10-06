@@ -45,51 +45,6 @@ class simple_comm_env(MultiAgentEnv):
         
         self.n_actions = self.action_space[0].n
 
-
-    def get_simple_obs(self, index=-1):
-        full_obs = self.env.unwrapped.observation()[0]
-        simple_obs = []
-
-        if index == -1:
-            # global state, absolute position
-            simple_obs.append(full_obs['left_team']
-                              [-self.n_agents:].reshape(-1))
-            simple_obs.append(
-                full_obs['left_team_direction'][-self.n_agents:].reshape(-1))
-
-            simple_obs.append(full_obs['right_team'].reshape(-1))
-            simple_obs.append(full_obs['right_team_direction'].reshape(-1))
-
-            simple_obs.append(full_obs['ball'])
-            simple_obs.append(full_obs['ball_direction'])
-
-        else:
-            # local state, relative position
-            ego_position = full_obs['left_team'][-self.n_agents +
-                                                 index].reshape(-1)
-            simple_obs.append(ego_position)
-            simple_obs.append((np.delete(
-                full_obs['left_team'][-self.n_agents:], index, axis=0) - ego_position).reshape(-1))
-
-            simple_obs.append(
-                full_obs['left_team_direction'][-self.n_agents + index].reshape(-1))
-            simple_obs.append(np.delete(
-                full_obs['left_team_direction'][-self.n_agents:], index, axis=0).reshape(-1))
-
-            simple_obs.append(
-                (full_obs['right_team'] - ego_position).reshape(-1))
-            simple_obs.append(full_obs['right_team_direction'].reshape(-1))
-
-            simple_obs.append(full_obs['ball'][:2] - ego_position)
-            simple_obs.append(full_obs['ball'][-1].reshape(-1))
-            simple_obs.append(full_obs['ball_direction'])
-
-        simple_obs = np.concatenate(simple_obs)
-        return simple_obs
-
-    def get_global_state(self):
-        return self.get_simple_obs(-1)
-
     def check_if_done(self):
         cur_obs = self.env.unwrapped.observation()[0]
         ball_loc = cur_obs['ball']
