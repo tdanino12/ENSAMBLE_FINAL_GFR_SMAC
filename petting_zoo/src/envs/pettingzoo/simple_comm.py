@@ -4,7 +4,7 @@ from gfootball.env import observation_preprocessing
 import gym
 import numpy as np
 
-class Academy_3_vs_1_with_Keeper(MultiAgentEnv):
+class simple_comm_env(MultiAgentEnv):
 
     def __init__(
         self,
