@@ -42,12 +42,8 @@ class simple_comm_env(MultiAgentEnv):
         self.observation_space = [
             gym.spaces.Box(low=obs_space_low, high=obs_space_high, dtype=self.env.observation_space.dtype) for _ in range(self.n_agents)
         ]
-
+        
         self.n_actions = self.action_space[0].n
-
-        self.unit_dim = self.obs_dim  # QPLEX unit_dim  for cds_gfootball
-        # self.unit_dim = 6  # QPLEX unit_dim set as that in Starcraft II
-
 
 
     def get_simple_obs(self, index=-1):
