@@ -1,2 +1,2 @@
-from .academy_3_vs_1_with_keeper import Academy_3_vs_1_with_Keeper
-from .academy_counterattack_hard import Academy_Counterattack_Hard
+from .simple_comm import simple_comm_env
+
