@@ -24,7 +24,10 @@ class MultinomialActionSelector():
         if test_mode and self.test_greedy:
             picked_actions = masked_policies.max(dim=2)[1]
         else:
+            masked_policies = th.clamp(masked_policies, min=0)
+            masked_policies = masked_policies.float().cpu()
             picked_actions = Categorical(masked_policies).sample().long()
+            picked_actions = picked_actions.to(agent_inputs.device)
 
             # random_numbers = th.rand_like(agent_inputs[:, :, 0])
             # pick_random = (random_numbers < self.epsilon).long()
@@ -53,8 +56,11 @@ class MultinomialActionSelector():
 
         random_numbers = th.rand_like(agent_inputs[:, :, 0])
         pick_random = (random_numbers < self.epsilon).long()
+        
+        avail_actions_cpu = avail_actions.float().cpu()
         random_actions = Categorical(avail_actions.float()).sample().long()
-
+        random_actions = random_actions.to(agent_inputs.device)
+        
         picked_actions = pick_random * random_actions + (1 - pick_random) * masked_q_values.max(dim=2)[1]
         if not (th.gather(avail_actions, dim=2, index=picked_actions.unsqueeze(2)) > 0.99).all():
             print((th.gather(avail_actions, dim=2, index=random_actions.unsqueeze(2)) <= 0.99).squeeze())
