@@ -58,7 +58,7 @@ class MultinomialActionSelector():
         pick_random = (random_numbers < self.epsilon).long()
         
         avail_actions_cpu = avail_actions.float().cpu()
-        random_actions = Categorical(avail_actions.float()).sample().long()
+        random_actions = Categorical(avail_actions_cpu.float()).sample().long()
         random_actions = random_actions.to(agent_inputs.device)
         
         picked_actions = pick_random * random_actions + (1 - pick_random) * masked_q_values.max(dim=2)[1]
