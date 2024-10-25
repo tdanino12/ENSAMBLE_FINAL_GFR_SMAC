@@ -24,7 +24,7 @@ class MultinomialActionSelector():
         if test_mode and self.test_greedy:
             picked_actions = masked_policies.max(dim=2)[1]
         else:
-            masked_policies = th.clamp(masked_policies, min=0)
+            #masked_policies = th.clamp(masked_policies, min=0)
             masked_policies = masked_policies.float().cpu()
             picked_actions = Categorical(masked_policies).sample().long()
             picked_actions = picked_actions.to(agent_inputs.device)
